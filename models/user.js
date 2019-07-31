@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-    _id: mongoose.Schema.ObjectId,
     firstname: {
       type: String,
       required: true
@@ -19,7 +18,8 @@ const UserSchema = new mongoose.Schema({
       required: true
     },
     image: { 
-        type: String,
+        data: Buffer,
+         contentType: String ,
         },
     posts : { 
         type : Array , 

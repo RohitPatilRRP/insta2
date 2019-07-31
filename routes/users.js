@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
+const bcrypt = require('bcrypt');
 
 
 //login
@@ -12,7 +13,6 @@ router.post('/login', (req, res) => {
 //register
 router.post('/register', (req, res) => {
     const { firstname, lastname, email, password } = req.body;
-    var image_path;
 
     let errors = [];
 
@@ -22,7 +22,7 @@ router.post('/register', (req, res) => {
     if (password.length < 6) {
         errors.push({ msg: 'Password must be at least 6 characters' });
     }
-    if (Object.keys(req.files).length == 0) {
+    if (req.files.img.size == 0 ) {
         return res.status(400).send('No files were uploaded.');
     }
 
@@ -31,19 +31,19 @@ router.post('/register', (req, res) => {
     }
 
     else {
+        const image =req.files.img;
         User.findOne({ email: email }).then((user) => {
             if (user) {
                 res.status(500).send('user exits');
             }
             else {
                 let sampleFile = req.files.img;
-                sampleFile.mv(__dirname + '/uploads/'+ email+"_"+req.files.img.name , function (err) {
+                sampleFile.mv(__dirname + '/uploads/'+ email , function (err) {
                     if (err) {
                         return res.status(500).send(err);
                     }
                     else {
                         console.log('image uploaded');
-                        image_path = __dirname + '/uploads/'+ email+"_"+req.files.img.name;
                     }
                 });
 
@@ -53,10 +53,25 @@ router.post('/register', (req, res) => {
                     lastname,
                     email,
                     password,
-                    image_path
+                    image
                 });
 
-                console.log('this ',newUser);
+         //       console.log('this ',newUser);
+
+                bcrypt.genSalt(10, (err, salt) => {
+                    bcrypt.hash(newUser.password, salt, (err, hash) => {
+                      if (err) throw err;
+                      newUser.password = hash;
+                      newUser
+                        .save()
+                        .then(user => {
+                          res.json({
+                            message: 'success_msg'
+                          });
+                        })
+                        .catch(err => console.log(err));
+                    });
+                  });
             }
         })
 

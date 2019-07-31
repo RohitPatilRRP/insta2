@@ -12,7 +12,9 @@ const uri = 'mongodb+srv://root:123@cluster0-razzt.mongodb.net/test';
 
 const db = mongoose.connect(uri,{useNewUrlParser: true}).then(()=>{ console.log('connected')}).catch((error) => { console.log(error); });
 
+
 app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser());
 app.use(fileUpload());
 
 app.use('/',require('./routes/index'));
